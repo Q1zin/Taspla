@@ -21,7 +21,7 @@
         </div>
 
         <nav class="menu-items">
-          <button class="menu-item">
+          <button class="menu-item" @click="$emit('navigate', 'profile')">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
               <circle cx="12" cy="7" r="4"></circle>
@@ -29,19 +29,12 @@
             <span>Профиль</span>
           </button>
           
-          <button class="menu-item">
+          <button class="menu-item" @click="$emit('navigate', 'home')">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="3"></circle>
-              <path d="M12 1v6m0 6v6m-9-9h6m6 0h6"></path>
+              <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+              <polyline points="9 22 9 12 15 12 15 22"></polyline>
             </svg>
-            <span>Настройки</span>
-          </button>
-
-          <button class="menu-item">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M3 3h7l3 9 3-9h7M4 7h16M6 11h12M8 15h8"></path>
-            </svg>
-            <span>Статистика</span>
+            <span>Задачи</span>
           </button>
         </nav>
 
@@ -60,6 +53,7 @@ defineProps<{
 
 defineEmits<{
   close: [];
+  navigate: [page: string];
 }>();
 </script>
 
