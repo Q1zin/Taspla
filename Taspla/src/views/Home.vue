@@ -106,7 +106,7 @@ const handleNavigate = (page: string) => {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background-color: #E8EEF2;
+  background-color: var(--color-bg);
   overflow: hidden;
 }
 </style>

@@ -217,7 +217,7 @@ const handleOverlayClick = () => {
 }
 
 .modal-content {
-  background-color: white;
+  background-color: var(--color-bg-card);
   border-radius: 16px;
   width: 100%;
   max-width: 500px;
@@ -231,14 +231,14 @@ const handleOverlayClick = () => {
   align-items: center;
   justify-content: space-between;
   padding: 24px 24px 16px;
-  border-bottom: 1px solid #E5E7EB;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .modal-header h2 {
   margin: 0;
   font-size: 20px;
   font-weight: 700;
-  color: #1F2937;
+  color: var(--color-text-primary);
 }
 
 .close-button {
@@ -246,7 +246,7 @@ const handleOverlayClick = () => {
   border: none;
   cursor: pointer;
   padding: 4px;
-  color: #6B7280;
+  color: var(--color-text-secondary);
   border-radius: 6px;
   transition: all 0.2s;
   display: flex;
@@ -255,8 +255,8 @@ const handleOverlayClick = () => {
 }
 
 .close-button:hover {
-  background-color: #F3F4F6;
-  color: #1F2937;
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
 }
 
 .modal-body {
@@ -272,16 +272,17 @@ const handleOverlayClick = () => {
   margin-bottom: 8px;
   font-size: 14px;
   font-weight: 600;
-  color: #374151;
+  color: var(--color-text-primary);
 }
 
 .form-input {
   width: 100%;
   padding: 12px 16px;
-  border: 1.5px solid #D1D5DB;
+  border: 1.5px solid var(--color-border);
   border-radius: 8px;
   font-size: 14px;
-  color: #1F2937;
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-card);
   transition: all 0.2s;
   font-family: inherit;
 }
@@ -293,7 +294,7 @@ const handleOverlayClick = () => {
 }
 
 .form-input::placeholder {
-  color: #9CA3AF;
+  color: var(--color-text-secondary);
 }
 
 textarea.form-input {
@@ -310,7 +311,7 @@ textarea.form-input {
   left: 12px;
   top: 50%;
   transform: translateY(-50%);
-  color: #6B7280;
+  color: var(--color-text-secondary);
   pointer-events: none;
 }
 
@@ -332,48 +333,51 @@ textarea.form-input {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
-  background-color: white;
+  background-color: var(--color-bg-card);
 }
 
 .priority-button.priority-low {
-  border-color: #D4F4DD;
-  color: #2C9C1E;
+  border-color: var(--priority-low-bg);
+  color: var(--priority-low-text);
 }
 
 .priority-button.priority-low.active {
-  background-color: #D4F4DD;
-  border-color: #2C9C1E;
-  color: #1F7A0F;
+  background-color: var(--priority-low-bg);
+  border-color: var(--priority-low-border);
+  color: var(--priority-low-text);
 }
 
 .priority-button.priority-medium {
-  border-color: #FEF3C7;
-  color: #92400E;
+  border-color: var(--priority-medium-bg);
+  color: var(--priority-medium-text);
 }
 
 .priority-button.priority-medium.active {
-  background-color: #FEF3C7;
-  border-color: #FBBF24;
+  background-color: var(--priority-medium-bg);
+  border-color: var(--priority-medium-border);
+  color: var(--priority-medium-text);
 }
 
 .priority-button.priority-high {
-  border-color: #FED7AA;
-  color: #9A3412;
+  border-color: var(--priority-high-bg);
+  color: var(--priority-high-text);
 }
 
 .priority-button.priority-high.active {
-  background-color: #FED7AA;
-  border-color: #F59E0B;
+  background-color: var(--priority-high-bg);
+  border-color: var(--priority-high-border);
+  color: var(--priority-high-text);
 }
 
 .priority-button.priority-critical {
-  border-color: #FEE2E2;
-  color: #991B1B;
+  border-color: var(--priority-critical-bg);
+  color: var(--priority-critical-text);
 }
 
 .priority-button.priority-critical.active {
-  background-color: #FEE2E2;
-  border-color: #EF4444;
+  background-color: var(--priority-critical-bg);
+  border-color: var(--priority-critical-border);
+  color: var(--priority-critical-text);
 }
 
 .reminder-inputs {
@@ -394,7 +398,7 @@ textarea.form-input {
 
 .input-label {
   font-size: 14px;
-  color: #6B7280;
+  color: var(--color-text-secondary);
   white-space: nowrap;
 }
 
@@ -417,23 +421,23 @@ textarea.form-input {
 }
 
 .btn-cancel {
-  background-color: white;
-  color: #7C3AED;
-  border: 2px solid #7C3AED;
+  background-color: var(--color-bg-card);
+  color: var(--color-primary);
+  border: 2px solid var(--color-primary);
 }
 
 .btn-cancel:hover {
-  background-color: #F5F3FF;
+  background-color: rgba(124, 58, 237, 0.05);
 }
 
 .btn-submit {
-  background-color: #7C3AED;
+  background-color: var(--color-primary);
   color: white;
   box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
 }
 
 .btn-submit:hover {
-  background-color: #6D28D9;
+  background-color: var(--color-primary-dark);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
 }
@@ -468,16 +472,16 @@ textarea.form-input {
 }
 
 .modal-content::-webkit-scrollbar-track {
-  background: #F3F4F6;
+  background: var(--color-bg);
   border-radius: 0 16px 16px 0;
 }
 
 .modal-content::-webkit-scrollbar-thumb {
-  background: #D1D5DB;
+  background: var(--color-border);
   border-radius: 4px;
 }
 
 .modal-content::-webkit-scrollbar-thumb:hover {
-  background: #9CA3AF;
+  background: var(--color-text-secondary);
 }
 </style>

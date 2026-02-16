@@ -31,7 +31,7 @@ defineEmits<{
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px;
-  background-color: #ffffff;
+  background-color: var(--color-bg-card);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   position: sticky;
   top: 0;
@@ -43,7 +43,7 @@ defineEmits<{
   border: none;
   cursor: pointer;
   padding: 8px;
-  color: #1F2937;
+  color: var(--color-text-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -52,14 +52,14 @@ defineEmits<{
 }
 
 .menu-button:hover {
-  background-color: #F3F4F6;
+  background-color: var(--color-bg);
 }
 
 .create-button {
   display: flex;
   align-items: center;
   gap: 8px;
-  background-color: #7C3AED;
+  background-color: var(--color-primary);
   color: white;
   border: none;
   padding: 10px 20px;
@@ -72,7 +72,7 @@ defineEmits<{
 }
 
 .create-button:hover {
-  background-color: #6D28D9;
+  background-color: var(--color-primary-dark);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
 }

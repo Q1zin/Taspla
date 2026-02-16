@@ -21,6 +21,13 @@
         </div>
 
         <nav class="menu-items">
+          <button class="menu-item" @click="$emit('navigate', 'home')">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+              <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+            <span>Задачи</span>
+          </button>
           <button class="menu-item" @click="$emit('navigate', 'profile')">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -29,12 +36,15 @@
             <span>Профиль</span>
           </button>
           
-          <button class="menu-item" @click="$emit('navigate', 'home')">
+          <button class="menu-item" @click="$emit('navigate', 'settings')">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-              <polyline points="9 22 9 12 15 12 15 22"></polyline>
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M12 1v6m0 6v6"></path>
+              <path d="m4.93 4.93 4.24 4.24m5.66 5.66 4.24 4.24"></path>
+              <path d="M1 12h6m6 0h6"></path>
+              <path d="m4.93 19.07 4.24-4.24m5.66-5.66 4.24-4.24"></path>
             </svg>
-            <span>Задачи</span>
+            <span>Настройки</span>
           </button>
         </nav>
 
@@ -81,6 +91,10 @@ defineEmits<{
   box-shadow: 2px 0 16px rgba(0, 0, 0, 0.1);
 }
 
+[data-theme="dark"] .side-menu {
+  background: linear-gradient(180deg, #1E293B 0%, #0F172A 100%);
+}
+
 .close-button {
   position: absolute;
   top: 16px;
@@ -89,13 +103,17 @@ defineEmits<{
   border: none;
   cursor: pointer;
   padding: 8px;
-  color: #1F2937;
+  color: var(--color-text-primary);
   border-radius: 8px;
   transition: background-color 0.2s;
 }
 
 .close-button:hover {
   background-color: rgba(255, 255, 255, 0.5);
+}
+
+[data-theme="dark"] .close-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .menu-content {
@@ -152,10 +170,15 @@ defineEmits<{
   border-radius: 12px;
   font-size: 18px;
   font-weight: 600;
-  color: #1F2937;
+  color: var(--color-text-primary);
   cursor: pointer;
   transition: all 0.2s;
   text-align: left;
+}
+
+[data-theme="dark"] .menu-item {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--color-text-primary);
 }
 
 .menu-item:hover {
@@ -163,10 +186,15 @@ defineEmits<{
   transform: translateX(4px);
 }
 
+[data-theme="dark"] .menu-item:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateX(4px);
+}
+
 .menu-footer {
   margin-top: auto;
   text-align: center;
-  color: #6B7280;
+  color: var(--color-text-secondary);
   font-size: 12px;
   line-height: 1.5;
 }

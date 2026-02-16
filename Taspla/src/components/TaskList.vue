@@ -117,7 +117,7 @@ const emptyStateDescription = computed(() => {
   display: flex;
   gap: 8px;
   padding: 16px 20px 0;
-  background-color: #E8EEF2;
+  background-color: var(--color-bg);
 }
 
 .task-tab {
@@ -132,14 +132,14 @@ const emptyStateDescription = computed(() => {
   border-radius: 12px 12px 0 0;
   font-size: 15px;
   font-weight: 600;
-  color: #6B7280;
+  color: var(--color-text-secondary);
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .task-tab.active {
-  background-color: white;
-  color: #7C3AED;
+  background-color: var(--color-bg-card);
+  color: var(--color-primary);
 }
 
 .tab-count {
@@ -149,7 +149,7 @@ const emptyStateDescription = computed(() => {
   min-width: 24px;
   height: 24px;
   padding: 0 8px;
-  background-color: #E8EEF2;
+  background-color: var(--color-bg);
   border-radius: 12px;
   font-size: 13px;
   font-weight: 700;
@@ -157,14 +157,19 @@ const emptyStateDescription = computed(() => {
 
 .task-tab.active .tab-count {
   background-color: #EDE9FE;
-  color: #7C3AED;
+  color: var(--color-primary);
+}
+
+[data-theme="dark"] .task-tab.active .tab-count {
+  background-color: rgba(139, 92, 246, 0.2);
+  color: var(--color-primary);
 }
 
 .tasks-container {
   flex: 1;
   overflow-y: auto;
   padding: 20px;
-  background-color: #E8EEF2;
+  background-color: var(--color-bg);
 }
 
 .empty-state {
@@ -184,19 +189,19 @@ const emptyStateDescription = computed(() => {
   margin: 0 0 8px;
   font-size: 20px;
   font-weight: 700;
-  color: #1F2937;
+  color: var(--color-text-primary);
 }
 
 .empty-state p {
   margin: 0;
   font-size: 14px;
-  color: #6B7280;
+  color: var(--color-text-secondary);
 }
 
 .progress-indicator {
   padding: 16px 20px 20px;
-  background-color: white;
-  border-top: 1px solid #E5E7EB;
+  background-color: var(--color-bg-card);
+  border-top: 1px solid var(--color-border);
 }
 
 .progress-text {
@@ -209,18 +214,18 @@ const emptyStateDescription = computed(() => {
 .progress-label {
   font-size: 13px;
   font-weight: 600;
-  color: #6B7280;
+  color: var(--color-text-secondary);
 }
 
 .progress-value {
   font-size: 14px;
   font-weight: 700;
-  color: #7C3AED;
+  color: var(--color-primary);
 }
 
 .progress-bar {
   height: 8px;
-  background-color: #E8EEF2;
+  background-color: var(--color-bg);
   border-radius: 4px;
   overflow: hidden;
 }

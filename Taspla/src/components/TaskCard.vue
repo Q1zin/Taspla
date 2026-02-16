@@ -118,7 +118,7 @@ const formattedDate = computed(() => {
 }
 
 .task-card-inner {
-  background-color: white;
+  background-color: var(--color-bg-card);
   border-radius: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   transition: box-shadow 0.2s;
@@ -140,14 +140,14 @@ const formattedDate = computed(() => {
   margin: 0;
   font-size: 16px;
   font-weight: 700;
-  color: #1F2937;
+  color: var(--color-text-primary);
   line-height: 1.4;
   transition: all 0.3s;
 }
 
 .task-title.is-completed {
   text-decoration: line-through;
-  color: #9CA3AF;
+  color: var(--color-text-secondary);
 }
 
 .priority-badge {
@@ -159,29 +159,29 @@ const formattedDate = computed(() => {
 }
 
 .priority-low {
-  background-color: #D4F4DD;
-  color: #2C9C1E;
+  background-color: var(--priority-low-bg);
+  color: var(--priority-low-text);
 }
 
 .priority-medium {
-  background-color: #FEF3C7;
-  color: #92400E;
+  background-color: var(--priority-medium-bg);
+  color: var(--priority-medium-text);
 }
 
 .priority-high {
-  background-color: #FED7AA;
-  color: #9A3412;
+  background-color: var(--priority-high-bg);
+  color: var(--priority-high-text);
 }
 
 .priority-critical {
-  background-color: #FEE2E2;
-  color: #991B1B;
+  background-color: var(--priority-critical-bg);
+  color: var(--priority-critical-text);
 }
 
 .task-description {
   margin: 0 0 12px;
   font-size: 14px;
-  color: #6B7280;
+  color: var(--color-text-secondary);
   line-height: 1.5;
 }
 
@@ -203,7 +203,7 @@ const formattedDate = computed(() => {
   display: flex;
   align-items: center;
   gap: 6px;
-  color: #6B7280;
+  color: var(--color-text-secondary);
   font-size: 13px;
 }
 

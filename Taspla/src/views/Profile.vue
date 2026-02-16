@@ -275,7 +275,7 @@ const handleNavigate = (page: string) => {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background-color: #E8EEF2;
+  background-color: var(--color-bg);
   overflow: hidden;
 }
 
@@ -484,7 +484,7 @@ const handleNavigate = (page: string) => {
   align-items: center;
   justify-content: space-between;
   padding: 24px 24px 16px;
-  border-bottom: 1px solid #E5E7EB;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .modal-title {
@@ -504,7 +504,7 @@ const handleNavigate = (page: string) => {
 }
 
 .modal-close:hover {
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: var(--color-bg);
   color: var(--color-text-primary);
 }
 
@@ -531,10 +531,11 @@ const handleNavigate = (page: string) => {
 .password-input {
   width: 100%;
   padding: 12px;
-  border: 2px solid #E5E7EB;
+  border: 2px solid var(--color-border);
   border-radius: 8px;
   font-size: 16px;
   color: var(--color-text-primary);
+  background-color: var(--color-bg-card);
   outline: none;
   transition: border-color 0.2s;
 }
@@ -546,8 +547,8 @@ const handleNavigate = (page: string) => {
 .error-message {
   margin-top: 16px;
   padding: 12px;
-  background-color: #FEE2E2;
-  color: #DC2626;
+  background-color: var(--color-danger-bg);
+  color: var(--color-danger-text);
   border-radius: 8px;
   font-size: 14px;
 }
@@ -555,8 +556,8 @@ const handleNavigate = (page: string) => {
 .success-message {
   margin-top: 16px;
   padding: 12px;
-  background-color: #D1FAE5;
-  color: #059669;
+  background-color: var(--color-success-bg);
+  color: var(--color-success-text);
   border-radius: 8px;
   font-size: 14px;
 }
@@ -565,7 +566,7 @@ const handleNavigate = (page: string) => {
   display: flex;
   gap: 12px;
   padding: 16px 24px 24px;
-  border-top: 1px solid #E5E7EB;
+  border-top: 1px solid var(--color-border);
 }
 
 .modal-button {
@@ -580,12 +581,12 @@ const handleNavigate = (page: string) => {
 }
 
 .modal-button.secondary {
-  background: #E5E7EB;
+  background: var(--color-border);
   color: var(--color-text-primary);
 }
 
 .modal-button.secondary:hover {
-  background: #D1D5DB;
+  background: var(--color-text-secondary);
 }
 
 .modal-button.primary {
