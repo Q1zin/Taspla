@@ -32,3 +32,22 @@ pub struct AuthResponse {
     pub user_id: Uuid,
     pub username: String,
 }
+
+#[derive(Debug, Deserialize, ToSchema)]
+pub struct UpdateProfileRequest {
+    pub username: String,
+}
+
+#[derive(Debug, Deserialize, ToSchema)]
+pub struct ChangePasswordRequest {
+    pub current_password: String,
+    pub new_password: String,
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+pub struct UpdateProfileResponse {
+    pub user_id: Uuid,
+    pub username: String,
+    pub email: String,
+    pub token: String,
+}

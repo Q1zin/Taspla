@@ -145,9 +145,24 @@ export function useAuth() {
     isInitializing.value = false;
   };
 
-  const updateUserName = (newName: string) => {
+  const updateUserName = async (newName: string): Promise<void> => {
+    const response = await api.put(`${API_BASE}/auth/profile`, { username: newName });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Ошибка обновления профиля' }));
+      throw new Error(error.message || 'Не удалось обновить имя пользователя');
+    }
+
+    const data = await response.json();
+    
+    // Обновляем токен с новым username
+    if (data.token) {
+      token.value = data.token;
+      setCookie(TOKEN_KEY, data.token, 7);
+    }
+    
     if (user.value) {
-      user.value.username = newName;
+      user.value.username = data.username;
     }
   };
 
@@ -157,15 +172,16 @@ export function useAuth() {
     }
   };
 
-  const changePassword = async (_currentPassword: string, _newPassword: string): Promise<void> => {
-    // TODO: Реализовать через API когда будет готов эндпоинт PUT /auth/password
-    console.log('Изменение пароля...');
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        console.log('Пароль успешно изменен');
-        resolve();
-      }, 1000);
+  const changePassword = async (currentPassword: string, newPassword: string): Promise<void> => {
+    const response = await api.put(`${API_BASE}/auth/password`, { 
+      current_password: currentPassword, 
+      new_password: newPassword 
     });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Ошибка изменения пароля' }));
+      throw new Error(error.message || 'Не удалось изменить пароль');
+    }
   };
 
   const getToken = (): string | null => {

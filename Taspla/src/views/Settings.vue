@@ -78,7 +78,7 @@
           </div>
         </div>
 
-        <div class="settings-section">
+        <!-- <div class="settings-section">
           <h2 class="section-title">Уведомления</h2>
           
           <div class="setting-item">
@@ -103,7 +103,7 @@
               <span class="toggle-slider"></span>
             </label>
           </div>
-        </div>
+        </div> -->
       </div>
     </div>
 

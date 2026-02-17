@@ -148,10 +148,8 @@
                 class="password-input"
                 placeholder="Повторите новый пароль"
               />
+              <span v-if="passwordError" class="field-error">{{ passwordError }}</span>
             </div>
-
-            <p v-if="passwordError" class="error-message">{{ passwordError }}</p>
-            <p v-if="passwordSuccess" class="success-message">{{ passwordSuccess }}</p>
           </div>
           
           <div class="modal-footer">
@@ -187,7 +185,6 @@ const currentPassword = ref('');
 const newPassword = ref('');
 const confirmPassword = ref('');
 const passwordError = ref('');
-const passwordSuccess = ref('');
 
 // Редактирование имени
 const startEditName = () => {
@@ -195,10 +192,15 @@ const startEditName = () => {
   isEditingName.value = true;
 };
 
-const saveName = () => {
+const saveName = async () => {
   if (editedName.value.trim()) {
-    updateUserName(editedName.value.trim());
-    isEditingName.value = false;
+    try {
+      await updateUserName(editedName.value.trim());
+      isEditingName.value = false;
+    } catch (error) {
+      console.error('Failed to update name:', error);
+      alert('Не удалось изменить имя');
+    }
   }
 };
 
@@ -215,7 +217,6 @@ const handleCreateTask = () => {
 // Изменение пароля
 const handleChangePassword = async () => {
   passwordError.value = '';
-  passwordSuccess.value = '';
 
   if (!currentPassword.value || !newPassword.value || !confirmPassword.value) {
     passwordError.value = 'Заполните все поля';
@@ -234,11 +235,7 @@ const handleChangePassword = async () => {
 
   try {
     await changePassword(currentPassword.value, newPassword.value);
-    passwordSuccess.value = 'Пароль успешно изменен!';
-    
-    setTimeout(() => {
-      closePasswordModal();
-    }, 2000);
+    closePasswordModal();
   } catch (error) {
     passwordError.value = 'Ошибка при изменении пароля';
   }
@@ -250,7 +247,6 @@ const closePasswordModal = () => {
   newPassword.value = '';
   confirmPassword.value = '';
   passwordError.value = '';
-  passwordSuccess.value = '';
 };
 
 // Выход из аккаунта
@@ -361,6 +357,7 @@ const handleLogout = () => {
   border-radius: 8px;
   font-size: 16px;
   color: var(--color-text-primary);
+  background-color: var(--color-bg-card);
   outline: none;
   transition: border-color 0.2s;
 }
@@ -505,7 +502,9 @@ const handleLogout = () => {
 }
 
 .input-group {
-  margin-bottom: 16px;
+  position: relative;
+  margin-bottom: 20px;
+  padding-bottom: 4px;
 }
 
 .input-group:last-of-type {
@@ -536,22 +535,12 @@ const handleLogout = () => {
   border-color: var(--color-primary);
 }
 
-.error-message {
-  margin-top: 16px;
-  padding: 12px;
-  background-color: var(--color-danger-bg);
+.field-error {
+  position: absolute;
+  bottom: -16px;
+  left: 0;
+  font-size: 13px;
   color: var(--color-danger-text);
-  border-radius: 8px;
-  font-size: 14px;
-}
-
-.success-message {
-  margin-top: 16px;
-  padding: 12px;
-  background-color: var(--color-success-bg);
-  color: var(--color-success-text);
-  border-radius: 8px;
-  font-size: 14px;
 }
 
 .modal-footer {

@@ -1,4 +1,4 @@
-use axum::{routing::{get, post}, Router};
+use axum::{routing::{get, post, put}, Router};
 use sqlx::postgres::PgPoolOptions;
 use dotenvy::dotenv;
 use std::env;
@@ -14,12 +14,17 @@ mod handlers;
         handlers::auth::register,
         handlers::auth::login,
         handlers::auth::verify_token,
+        handlers::auth::update_profile,
+        handlers::auth::change_password,
     ),
     components(
         schemas(
             models::user::RegisterRequest,
             models::user::LoginRequest,
             models::user::AuthResponse,
+            models::user::UpdateProfileRequest,
+            models::user::ChangePasswordRequest,
+            models::user::UpdateProfileResponse,
         )
     ),
     tags(
@@ -93,6 +98,8 @@ async fn main() {
         .route("/auth/register", post(handlers::auth::register))
         .route("/auth/login", post(handlers::auth::login))
         .route("/auth/verify", get(handlers::auth::verify_token))
+        .route("/auth/profile", put(handlers::auth::update_profile))
+        .route("/auth/password", put(handlers::auth::change_password))
         .with_state(pool);
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3001").await.unwrap();
