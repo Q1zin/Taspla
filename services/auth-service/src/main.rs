@@ -55,10 +55,19 @@ impl utoipa::Modify for SecurityAddon {
 
 #[tokio::main]
 async fn main() {
+    tracing_subscriber::fmt()
+        .with_env_filter(
+            tracing_subscriber::EnvFilter::try_from_default_env()
+                .unwrap_or_else(|_| tracing_subscriber::EnvFilter::new("info"))
+        )
+        .init();
+
     dotenv().ok();
 
     let database_url = env::var("DATABASE_URL")
         .expect("DATABASE_URL must be set");
+    
+    tracing::info!("Auth service starting...");
 
     let pool = PgPoolOptions::new()
         .max_connections(5)
@@ -87,7 +96,7 @@ async fn main() {
         .with_state(pool);
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3001").await.unwrap();
-    println!("Auth service running on port 3001");
-    println!("Swagger UI: http://localhost:3001/swagger-ui/");
+    tracing::info!("Auth service running on port 3001");
+    tracing::info!("Swagger UI: http://localhost:3001/swagger-ui/");
     axum::serve(listener, app).await.unwrap();
 }

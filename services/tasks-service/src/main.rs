@@ -1,4 +1,6 @@
-use axum::{routing::{delete, get, patch, post, put}, Router};
+use axum::{routing::{delete, get, patch, post, put}, Router, middleware};
+use axum::extract::Request;
+use axum::response::Response;
 use dotenvy::dotenv;
 use sqlx::postgres::PgPoolOptions;
 use std::env;
@@ -55,11 +57,35 @@ impl utoipa::Modify for SecurityAddon {
     }
 }
 
+async fn log_middleware(
+    req: Request,
+    next: axum::middleware::Next,
+) -> Response {
+    let method = req.method().clone();
+    let uri = req.uri().clone();
+    
+    tracing::info!(method = %method, path = %uri.path(), "Incoming request to tasks-service");
+    
+    let response = next.run(req).await;
+    
+    tracing::info!(method = %method, path = %uri.path(), status = %response.status(), "Response from tasks-service");
+    
+    response
+}
+
 #[tokio::main]
 async fn main() {
+    tracing_subscriber::fmt()
+        .with_env_filter(
+            tracing_subscriber::EnvFilter::try_from_default_env()
+                .unwrap_or_else(|_| tracing_subscriber::EnvFilter::new("info"))
+        )
+        .init();
+
     dotenv().ok();
 
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    tracing::info!("Tasks service starting...");
 
     let pool = PgPoolOptions::new()
         .max_connections(5)
@@ -123,14 +149,15 @@ async fn main() {
     let app = Router::new()
         .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
         .route("/tasks", get(handlers::tasks::list_tasks).post(handlers::tasks::create_task))
-        .route("/tasks/{id}", get(handlers::tasks::get_task).put(handlers::tasks::update_task).delete(handlers::tasks::delete_task))
-        .route("/tasks/{id}/complete", patch(handlers::tasks::complete_task))
-        .route("/tasks/{id}/restore", patch(handlers::tasks::restore_task))
+        .route("/tasks/:id", get(handlers::tasks::get_task).put(handlers::tasks::update_task).delete(handlers::tasks::delete_task))
+        .route("/tasks/:id/complete", patch(handlers::tasks::complete_task))
+        .route("/tasks/:id/restore", patch(handlers::tasks::restore_task))
         .route("/settings", get(handlers::settings::get_settings).put(handlers::settings::update_settings))
-        .with_state(pool);
+        .with_state(pool)
+        .layer(axum::middleware::from_fn(log_middleware));
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3002").await.unwrap();
-    println!("Tasks service running on port 3002");
-    println!("Swagger UI: http://localhost:3002/swagger-ui/");
+    tracing::info!("Tasks service running on port 3002");
+    tracing::info!("Swagger UI: http://localhost:3002/swagger-ui/");
     axum::serve(listener, app).await.unwrap();
 }

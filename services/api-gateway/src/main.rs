@@ -21,19 +21,25 @@ async fn proxy(
     State(state): State<AppState>,
     req: Request,
 ) -> Result<Response, (StatusCode, String)> {
-    let path = req.uri().path();
+    let path = req.uri().path().to_string();
     let query = req.uri().query().map(|q| format!("?{}", q)).unwrap_or_default();
+    let method_str = req.method().as_str().to_string();
+    
+    tracing::info!(method = %method_str, path = %path, "Incoming request");
 
     // Роутинг: определяем куда идёт запрос
     let target_url = if path.starts_with("/api/auth") || path.starts_with("/api/users") {
-        let stripped = path.strip_prefix("/api").unwrap_or(path);
+        let stripped = path.strip_prefix("/api").unwrap_or(&path);
         format!("{}{}{}", state.auth_service_url, stripped, query)
     } else if path.starts_with("/api/tasks") || path.starts_with("/api/settings") {
-        let stripped = path.strip_prefix("/api").unwrap_or(path);
+        let stripped = path.strip_prefix("/api").unwrap_or(&path);
         format!("{}{}{}", state.tasks_service_url, stripped, query)
     } else {
+        tracing::warn!(path = %path, "Unknown route");
         return Err((StatusCode::NOT_FOUND, "Unknown route".to_string()));
     };
+    
+    tracing::info!(method = %method_str, target_url = %target_url, "Proxying request");
 
     // Пробрасываем метод, заголовки и тело
     let method = reqwest::Method::from_bytes(req.method().as_str().as_bytes())
@@ -57,7 +63,13 @@ async fn proxy(
         .body(body_bytes)
         .send()
         .await
-        .map_err(|e| (StatusCode::BAD_GATEWAY, e.to_string()))?;
+        .map_err(|e| {
+            tracing::error!(error = %e, target_url = %target_url, "Proxy request failed");
+            (StatusCode::BAD_GATEWAY, e.to_string())
+        })?;
+
+    let response_status = response.status().as_u16();
+    tracing::info!(method = %method_str, path = %path, status = response_status, "Response");
 
     // Пробрасываем ответ обратно
     let status = axum::http::StatusCode::from_u16(response.status().as_u16())
@@ -82,7 +94,16 @@ async fn proxy(
 
 #[tokio::main]
 async fn main() {
+    tracing_subscriber::fmt()
+        .with_env_filter(
+            tracing_subscriber::EnvFilter::try_from_default_env()
+                .unwrap_or_else(|_| tracing_subscriber::EnvFilter::new("info"))
+        )
+        .init();
+
     dotenv().ok();
+
+    tracing::info!("API Gateway starting...");
 
     let state = AppState {
         client: Client::new(),
@@ -97,6 +118,6 @@ async fn main() {
         .with_state(state);
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:8080").await.unwrap();
-    println!("API Gateway running on port 8080");
+    tracing::info!("API Gateway running on port 8080");
     axum::serve(listener, app).await.unwrap();
 }

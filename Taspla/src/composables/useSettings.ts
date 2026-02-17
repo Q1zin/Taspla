@@ -1,39 +1,96 @@
 import { ref, watch } from 'vue';
+import { api } from '../utils/api';
 
 export type Theme = 'light' | 'dark';
 
-// Загружаем сохраненные настройки из localStorage
-const loadSettings = () => {
-  const savedTheme = localStorage.getItem('theme') as Theme | null;
-  const savedNotifications = localStorage.getItem('notifications');
-  
-  return {
-    theme: savedTheme || 'light',
-    notificationsEnabled: savedNotifications ? savedNotifications === 'true' : true
-  };
-};
+interface Settings {
+  theme: Theme;
+  notifications_enabled: boolean;
+}
 
-const settings = loadSettings();
-const theme = ref<Theme>(settings.theme);
-const notificationsEnabled = ref(settings.notificationsEnabled);
+const API_BASE = '/api';
+const theme = ref<Theme>('light');
+const notificationsEnabled = ref(true);
+const loading = ref(false);
+const error = ref<string | null>(null);
+const initialized = ref(false);
 
-// Применяем тему при загрузке
+// Применяем тему
 const applyTheme = (currentTheme: Theme) => {
   document.documentElement.setAttribute('data-theme', currentTheme);
 };
 
-applyTheme(theme.value);
+// Загрузка настроек с сервера
+const fetchSettings = async () => {
+  loading.value = true;
+  error.value = null;
+  
+  try {
+    const response = await api.get(`${API_BASE}/settings`);
+    
+    if (!response.ok) {
+      throw new Error('Ошибка загрузки настроек');
+    }
+    
+    const data: Settings = await response.json();
+    theme.value = data.theme;
+    notificationsEnabled.value = data.notifications_enabled;
+    applyTheme(theme.value);
+    initialized.value = true;
+  } catch (e: any) {
+    error.value = e.message;
+    console.error('Error fetching settings:', e);
+    // Откатываемся на localStorage при ошибке
+    const savedTheme = localStorage.getItem('theme') as Theme | null;
+    const savedNotifications = localStorage.getItem('notifications');
+    theme.value = savedTheme || 'light';
+    notificationsEnabled.value = savedNotifications ? savedNotifications === 'true' : true;
+    applyTheme(theme.value);
+  } finally {
+    loading.value = false;
+  }
+};
+
+// Сохранение настроек на сервер
+const saveSettings = async () => {
+  try {
+    const response = await api.put(`${API_BASE}/settings`, {
+      theme: theme.value,
+      notifications_enabled: notificationsEnabled.value
+    });
+    
+    if (!response.ok) {
+      throw new Error('Ошибка сохранения настроек');
+    }
+    
+    // Сохраняем также в localStorage для резервирования
+    localStorage.setItem('theme', theme.value);
+    localStorage.setItem('notifications', String(notificationsEnabled.value));
+  } catch (e: any) {
+    error.value = e.message;
+    console.error('Error saving settings:', e);
+  }
+};
 
 export function useSettings() {
+  // Автоматически загружаем настройки при первом использовании
+  if (!initialized.value && !loading.value) {
+    fetchSettings();
+  }
+
   // Следим за изменениями темы
   watch(theme, (newTheme) => {
-    localStorage.setItem('theme', newTheme);
     applyTheme(newTheme);
+    if (initialized.value) {
+      saveSettings();
+    }
   });
 
   // Следим за изменениями настройки уведомлений
-  watch(notificationsEnabled, (newValue) => {
-    localStorage.setItem('notifications', String(newValue));
+  watch(notificationsEnabled, () => {
+    if (initialized.value) {
+      saveSettings();
+    }
   });
 
   const toggleTheme = () => {
@@ -55,9 +112,12 @@ export function useSettings() {
   return {
     theme,
     notificationsEnabled,
+    loading,
+    error,
     toggleTheme,
     setTheme,
     toggleNotifications,
-    setNotifications
+    setNotifications,
+    fetchSettings
   };
 }

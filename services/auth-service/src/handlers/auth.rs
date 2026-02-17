@@ -12,6 +12,7 @@ use crate::models::user::{AuthResponse, LoginRequest, RegisterRequest, User};
 pub struct Claims {
     pub sub: String,      // user_id
     pub username: String,
+    pub email: String,    // email
     pub exp: usize,       // когда истекает
 }
 
@@ -35,15 +36,21 @@ pub async fn register(
     State(pool): State<PgPool>,
     Json(req): Json<RegisterRequest>,
 ) -> Result<Json<AuthResponse>, (StatusCode, String)> {
+    tracing::info!(email = %req.email, username = %req.username, "Attempting registration");
+    
     let existing = sqlx::query_scalar::<_, i64>(
         "SELECT COUNT(*) FROM users WHERE email = $1"
     )
     .bind(&req.email)
     .fetch_one(&pool)
     .await
-    .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+    .map_err(|e| {
+        tracing::error!(error = %e, "Database error checking existing email");
+        (StatusCode::INTERNAL_SERVER_ERROR, e.to_string())
+    })?;
 
     if existing > 0 {
+        tracing::warn!(email = %req.email, "Registration failed: email already taken");
         return Err((StatusCode::CONFLICT, "Email already taken".to_string()));
     }
 
@@ -65,8 +72,9 @@ pub async fn register(
     .await
     .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
 
-    let token = create_token(user_id, &req.username)?;
+    let token = create_token(user_id, &req.username, &req.email)?;
 
+    tracing::info!(user_id = %user_id, username = %req.username, "User registered successfully");
     Ok(Json(AuthResponse {
         token,
         user_id,
@@ -89,24 +97,34 @@ pub async fn login(
     State(pool): State<PgPool>,
     Json(req): Json<LoginRequest>,
 ) -> Result<Json<AuthResponse>, (StatusCode, String)> {
+    tracing::info!(email = %req.email, "Attempting login");
+    
     let user = sqlx::query_as::<_, User>(
         "SELECT * FROM users WHERE email = $1"
     )
     .bind(&req.email)
     .fetch_optional(&pool)
     .await
-    .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?
-    .ok_or((StatusCode::UNAUTHORIZED, "Invalid email or password".to_string()))?;
+    .map_err(|e| {
+        tracing::error!(error = %e, "Database error fetching user");
+        (StatusCode::INTERNAL_SERVER_ERROR, e.to_string())
+    })?
+    .ok_or_else(|| {
+        tracing::warn!(email = %req.email, "Login failed: user not found");
+        (StatusCode::UNAUTHORIZED, "Invalid email or password".to_string())
+    })?;
 
     let valid = verify(&req.password, &user.password_hash)
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
 
     if !valid {
+        tracing::warn!(email = %req.email, "Login failed: invalid password");
         return Err((StatusCode::UNAUTHORIZED, "Invalid email or password".to_string()));
     }
 
-    let token = create_token(user.id, &user.username)?;
+    let token = create_token(user.id, &user.username, &user.email)?;
 
+    tracing::info!(user_id = %user.id, username = %user.username, "User logged in successfully");
     Ok(Json(AuthResponse {
         token,
         user_id: user.id,
@@ -127,12 +145,17 @@ pub async fn login(
 pub async fn verify_token(
     headers: HeaderMap,
 ) -> Result<Json<serde_json::Value>, (StatusCode, String)> {
+    tracing::debug!("Verifying token");
+    
     let secret = std::env::var("JWT_SECRET").unwrap_or_else(|_| "secret".to_string());
 
     let auth_header = headers
         .get("authorization")
         .and_then(|h| h.to_str().ok())
-        .ok_or((StatusCode::UNAUTHORIZED, "Missing authorization header".to_string()))?;
+        .ok_or_else(|| {
+            tracing::warn!("Token verification failed: missing authorization header");
+            (StatusCode::UNAUTHORIZED, "Missing authorization header".to_string())
+        })?;
 
     let token = auth_header
         .strip_prefix("Bearer ")
@@ -143,20 +166,26 @@ pub async fn verify_token(
         &jsonwebtoken::DecodingKey::from_secret(secret.as_bytes()),
         &jsonwebtoken::Validation::default(),
     )
-    .map_err(|_| (StatusCode::UNAUTHORIZED, "Invalid token".to_string()))?;
+    .map_err(|e| {
+        tracing::warn!(error = %e, "Token verification failed: invalid token");
+        (StatusCode::UNAUTHORIZED, "Invalid token".to_string())
+    })?;
 
+    tracing::info!(user_id = %token_data.claims.sub, "Token verified successfully");
     Ok(Json(serde_json::json!({
         "user_id": token_data.claims.sub,
         "username": token_data.claims.username,
+        "email": token_data.claims.email,
     })))
 }
 
-fn create_token(user_id: Uuid, username: &str) -> Result<String, (StatusCode, String)> {
+fn create_token(user_id: Uuid, username: &str, email: &str) -> Result<String, (StatusCode, String)> {
     let secret = std::env::var("JWT_SECRET").unwrap_or_else(|_| "secret".to_string());
 
     let claims = Claims {
         sub: user_id.to_string(),
         username: username.to_string(),
+        email: email.to_string(),
         exp: (Utc::now() + Duration::days(7)).timestamp() as usize,
     };
 

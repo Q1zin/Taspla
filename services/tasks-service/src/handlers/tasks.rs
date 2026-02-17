@@ -53,6 +53,14 @@ pub async fn create_task(
     State(pool): State<PgPool>,
     Json(req): Json<CreateTaskRequest>,
 ) -> Result<(StatusCode, Json<Task>), (StatusCode, String)> {
+    tracing::info!(
+        user_id = %auth.user_id,
+        title = %req.title,
+        priority = %req.priority,
+        due_date = %req.due_date,
+        "Creating task"
+    );
+    
     let task = sqlx::query_as::<_, Task>(
         "INSERT INTO tasks (id, user_id, title, description, priority, due_date,
                             reminder_days, reminder_hours, status, created_at)
@@ -70,8 +78,12 @@ pub async fn create_task(
     .bind(Utc::now())
     .fetch_one(&pool)
     .await
-    .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+    .map_err(|e| {
+        tracing::error!(error = %e, "Failed to create task");
+        (StatusCode::INTERNAL_SERVER_ERROR, e.to_string())
+    })?;
 
+    tracing::info!(task_id = %task.id, "Task created successfully");
     Ok((StatusCode::CREATED, Json(task)))
 }
 
@@ -120,6 +132,12 @@ pub async fn update_task(
     Path(id): Path<Uuid>,
     Json(req): Json<UpdateTaskRequest>,
 ) -> Result<Json<Task>, (StatusCode, String)> {
+    tracing::info!(
+        user_id = %auth.user_id,
+        task_id = %id,
+        "Updating task"
+    );
+
     let task = sqlx::query_as::<_, Task>(
         "UPDATE tasks SET
             title = COALESCE($3, title),
@@ -143,6 +161,12 @@ pub async fn update_task(
     .await
     .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?
     .ok_or((StatusCode::NOT_FOUND, "Task not found".to_string()))?;
+
+    tracing::info!(
+        user_id = %auth.user_id,
+        task_id = %id,
+        "Task updated successfully"
+    );
 
     Ok(Json(task))
 }
@@ -193,6 +217,12 @@ pub async fn complete_task(
     State(pool): State<PgPool>,
     Path(id): Path<Uuid>,
 ) -> Result<Json<Task>, (StatusCode, String)> {
+    tracing::info!(
+        user_id = %auth.user_id,
+        task_id = %id,
+        "Marking task as complete"
+    );
+
     let task = sqlx::query_as::<_, Task>(
         "UPDATE tasks SET status = 'completed', completed_at = $3
          WHERE id = $1 AND user_id = $2
@@ -205,6 +235,12 @@ pub async fn complete_task(
     .await
     .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?
     .ok_or((StatusCode::NOT_FOUND, "Task not found".to_string()))?;
+
+    tracing::info!(
+        user_id = %auth.user_id,
+        task_id = %id,
+        "Task marked as complete"
+    );
 
     Ok(Json(task))
 }
@@ -224,6 +260,12 @@ pub async fn restore_task(
     State(pool): State<PgPool>,
     Path(id): Path<Uuid>,
 ) -> Result<Json<Task>, (StatusCode, String)> {
+    tracing::info!(
+        user_id = %auth.user_id,
+        task_id = %id,
+        "Restoring completed task"
+    );
+
     let task = sqlx::query_as::<_, Task>(
         "UPDATE tasks SET status = 'active', completed_at = NULL
          WHERE id = $1 AND user_id = $2
@@ -235,6 +277,12 @@ pub async fn restore_task(
     .await
     .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?
     .ok_or((StatusCode::NOT_FOUND, "Task not found".to_string()))?;
+
+    tracing::info!(
+        user_id = %auth.user_id,
+        task_id = %id,
+        "Task restored successfully"
+    );
 
     Ok(Json(task))
 }

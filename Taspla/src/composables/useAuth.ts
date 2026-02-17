@@ -1,6 +1,7 @@
 import { ref } from 'vue';
 import { getCookie, setCookie, deleteCookie } from '../utils/cookies';
 import { api } from '../utils/api';
+import { useSettings } from './useSettings';
 
 interface User {
   id?: string;
@@ -63,6 +64,10 @@ async function verifyToken(): Promise<void> {
     email: data.email || ''
   };
   isAuthenticated.value = true;
+  
+  // Загружаем настройки пользователя
+  const { fetchSettings } = useSettings();
+  await fetchSettings();
 }
 
 export function useAuth() {
@@ -93,6 +98,10 @@ export function useAuth() {
     };
     isAuthenticated.value = true;
     isInitializing.value = false;
+    
+    // Загружаем настройки пользователя
+    const { fetchSettings } = useSettings();
+    await fetchSettings();
   };
 
   const register = async (username: string, email: string, password: string): Promise<void> => {
@@ -122,6 +131,10 @@ export function useAuth() {
     };
     isAuthenticated.value = true;
     isInitializing.value = false;
+    
+    // Загружаем настройки пользователя
+    const { fetchSettings } = useSettings();
+    await fetchSettings();
   };
 
   const logout = () => {
