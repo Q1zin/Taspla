@@ -7,7 +7,6 @@ use utoipa_swagger_ui::SwaggerUi;
 
 mod models;
 mod handlers;
-mod middleware;
 
 #[derive(OpenApi)]
 #[openapi(
@@ -89,5 +88,6 @@ async fn main() {
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3001").await.unwrap();
     println!("Auth service running on port 3001");
+    println!("Swagger UI: http://localhost:3001/swagger-ui/");
     axum::serve(listener, app).await.unwrap();
 }
