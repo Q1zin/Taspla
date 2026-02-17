@@ -7,6 +7,7 @@ use utoipa_swagger_ui::SwaggerUi;
 
 mod models;
 mod handlers;
+mod middleware;
 
 #[derive(OpenApi)]
 #[openapi(
