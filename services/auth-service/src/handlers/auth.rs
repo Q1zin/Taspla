@@ -5,6 +5,7 @@ use jsonwebtoken::{encode, EncodingKey, Header};
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 use uuid::Uuid;
+use utoipa::ToSchema;
 use crate::models::user::{AuthResponse, LoginRequest, RegisterRequest, User};
 
 #[derive(Serialize, Deserialize)]
@@ -14,6 +15,22 @@ pub struct Claims {
     pub exp: usize,       // когда истекает
 }
 
+#[derive(Serialize, ToSchema)]
+pub struct ErrorResponse {
+    pub message: String,
+}
+
+#[utoipa::path(
+    post,
+    path = "/auth/register",
+    request_body = RegisterRequest,
+    responses(
+        (status = 200, description = "Успешная регистрация", body = AuthResponse),
+        (status = 409, description = "Email уже занят"),
+        (status = 500, description = "Внутренняя ошибка сервера"),
+    ),
+    tag = "auth"
+)]
 pub async fn register(
     State(pool): State<PgPool>,
     Json(req): Json<RegisterRequest>,
@@ -57,6 +74,17 @@ pub async fn register(
     }))
 }
 
+#[utoipa::path(
+    post,
+    path = "/auth/login",
+    request_body = LoginRequest,
+    responses(
+        (status = 200, description = "Успешный вход", body = AuthResponse),
+        (status = 401, description = "Неверный email или пароль"),
+        (status = 500, description = "Внутренняя ошибка сервера"),
+    ),
+    tag = "auth"
+)]
 pub async fn login(
     State(pool): State<PgPool>,
     Json(req): Json<LoginRequest>,
@@ -86,6 +114,16 @@ pub async fn login(
     }))
 }
 
+#[utoipa::path(
+    get,
+    path = "/auth/verify",
+    responses(
+        (status = 200, description = "Токен валиден", body = serde_json::Value),
+        (status = 401, description = "Токен невалиден или отсутствует"),
+    ),
+    security(("bearer_auth" = [])),
+    tag = "auth"
+)]
 pub async fn verify_token(
     headers: HeaderMap,
 ) -> Result<Json<serde_json::Value>, (StatusCode, String)> {

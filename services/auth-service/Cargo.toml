@@ -15,3 +15,5 @@ bcrypt = "0.15"
 jsonwebtoken = "9"
 dotenvy = "0.15"
 tower-http = { version = "0.5", features = ["cors"] }
+utoipa = { version = "4", features = ["axum_extras", "uuid", "chrono"] }
+utoipa-swagger-ui = { version = "7", features = ["axum"] }
