@@ -1,36 +1,8 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import Home from './views/Home.vue';
-import Profile from './views/Profile.vue';
-import Settings from './views/Settings.vue';
-
-const currentPage = ref<'home' | 'profile' | 'settings'>('home');
-const openTaskModal = ref(false);
-
-const navigateTo = (page: string) => {
-  if (page === 'home:create-task') {
-    currentPage.value = 'home';
-    openTaskModal.value = true;
-  } else if (page === 'home' || page === 'profile' || page === 'settings') {
-    currentPage.value = page as 'home' | 'profile' | 'settings';
-    openTaskModal.value = false;
-  }
-};
-
-const resetTaskModal = () => {
-  openTaskModal.value = false;
-};
 </script>
 
 <template>
-  <Home 
-    v-if="currentPage === 'home'" 
-    @navigate="navigateTo"
-    :open-task-modal="openTaskModal"
-    @reset-task-modal="resetTaskModal"
-  />
-  <Profile v-else-if="currentPage === 'profile'" @navigate="navigateTo" />
-  <Settings v-else-if="currentPage === 'settings'" @navigate="navigateTo" />
+  <router-view />
 </template>
 
 <style>

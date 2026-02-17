@@ -21,22 +21,22 @@
         </div>
 
         <nav class="menu-items">
-          <button class="menu-item" @click="$emit('navigate', 'home')">
+          <router-link to="/" class="menu-item" @click="$emit('close')">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
               <polyline points="9 22 9 12 15 12 15 22"></polyline>
             </svg>
             <span>Задачи</span>
-          </button>
-          <button class="menu-item" @click="$emit('navigate', 'profile')">
+          </router-link>
+          <router-link to="/profile" class="menu-item" @click="$emit('close')">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
               <circle cx="12" cy="7" r="4"></circle>
             </svg>
             <span>Профиль</span>
-          </button>
+          </router-link>
           
-          <button class="menu-item" @click="$emit('navigate', 'settings')">
+          <router-link to="/settings" class="menu-item" @click="$emit('close')">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="12" r="3"></circle>
               <path d="M12 1v6m0 6v6"></path>
@@ -45,6 +45,15 @@
               <path d="m4.93 19.07 4.24-4.24m5.66-5.66 4.24-4.24"></path>
             </svg>
             <span>Настройки</span>
+          </router-link>
+
+          <button class="menu-item menu-item-logout" @click="handleLogout">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+            <span>Выход</span>
           </button>
         </nav>
 
@@ -57,14 +66,25 @@
 </template>
 
 <script setup lang="ts">
+import { useRouter } from 'vue-router';
+import { useAuth } from '../composables/useAuth';
+
+const router = useRouter();
+const { logout } = useAuth();
+
 defineProps<{
   isOpen: boolean;
 }>();
 
-defineEmits<{
+const emit = defineEmits<{
   close: [];
-  navigate: [page: string];
 }>();
+
+const handleLogout = () => {
+  logout();
+  emit('close');
+  router.push('/login');
+};
 </script>
 
 <style scoped>
@@ -174,6 +194,7 @@ defineEmits<{
   cursor: pointer;
   transition: all 0.2s;
   text-align: left;
+  text-decoration: none;
 }
 
 [data-theme="dark"] .menu-item {
@@ -189,6 +210,33 @@ defineEmits<{
 [data-theme="dark"] .menu-item:hover {
   background: rgba(255, 255, 255, 0.15);
   transform: translateX(4px);
+}
+
+.menu-item.router-link-active {
+  background: var(--color-primary);
+  color: white;
+}
+
+[data-theme="dark"] .menu-item.router-link-active {
+  background: var(--color-primary);
+  color: white;
+}
+
+.menu-item-logout {
+  margin-top: 12px;
+  background: rgba(252, 165, 165, 0.3);
+}
+
+[data-theme="dark"] .menu-item-logout {
+  background: rgba(252, 165, 165, 0.15);
+}
+
+.menu-item-logout:hover {
+  background: rgba(252, 165, 165, 0.5);
+}
+
+[data-theme="dark"] .menu-item-logout:hover {
+  background: rgba(252, 165, 165, 0.25);
 }
 
 .menu-footer {

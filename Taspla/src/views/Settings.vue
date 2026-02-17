@@ -110,32 +110,24 @@
     <SideMenu 
       :is-open="isMenuOpen"
       @close="isMenuOpen = false"
-      @navigate="handleNavigate"
     />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import AppHeader from '../components/AppHeader.vue';
 import SideMenu from '../components/SideMenu.vue';
 import { useSettings } from '../composables/useSettings';
 
+const router = useRouter();
 const { theme, notificationsEnabled, setTheme } = useSettings();
 
 const isMenuOpen = ref(false);
 
-const emit = defineEmits<{
-  navigate: [page: string];
-}>();
-
 const handleCreateTask = () => {
-  emit('navigate', 'home:create-task');
-};
-
-const handleNavigate = (page: string) => {
-  emit('navigate', page);
-  isMenuOpen.value = false;
+  router.push('/');
 };
 </script>
 

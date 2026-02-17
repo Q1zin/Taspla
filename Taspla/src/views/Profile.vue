@@ -31,7 +31,7 @@
                 @keyup.enter="saveName"
                 @keyup.escape="cancelEditName"
               />
-              <span v-else class="info-value">{{ user.name }}</span>
+              <span v-else class="info-value">{{ user?.username }}</span>
               <button 
                 v-if="!isEditingName"
                 @click="startEditName" 
@@ -62,7 +62,7 @@
           <div class="info-item">
             <label class="info-label">Почта</label>
             <div class="info-value-container">
-              <span class="info-value">{{ user.email }}</span>
+              <span class="info-value">{{ user?.email }}</span>
             </div>
           </div>
         </div>
@@ -103,7 +103,6 @@
     <SideMenu 
       :is-open="isMenuOpen"
       @close="isMenuOpen = false"
-      @navigate="handleNavigate"
     />
 
     <!-- Модальное окно для изменения пароля -->
@@ -171,10 +170,12 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import AppHeader from '../components/AppHeader.vue';
 import SideMenu from '../components/SideMenu.vue';
 import { useAuth } from '../composables/useAuth';
 
+const router = useRouter();
 const { user, updateUserName, changePassword, logout } = useAuth();
 
 const isMenuOpen = ref(false);
@@ -188,13 +189,9 @@ const confirmPassword = ref('');
 const passwordError = ref('');
 const passwordSuccess = ref('');
 
-const emit = defineEmits<{
-  navigate: [page: string];
-}>();
-
 // Редактирование имени
 const startEditName = () => {
-  editedName.value = user.value.name;
+  editedName.value = user.value?.username || '';
   isEditingName.value = true;
 };
 
@@ -212,7 +209,7 @@ const cancelEditName = () => {
 
 // Создание задачи
 const handleCreateTask = () => {
-  emit('navigate', 'home:create-task');
+  router.push('/');
 };
 
 // Изменение пароля
@@ -260,13 +257,8 @@ const closePasswordModal = () => {
 const handleLogout = () => {
   if (confirm('Вы уверены, что хотите выйти?')) {
     logout();
-    emit('navigate', 'home');
+    router.push('/login');
   }
-};
-
-const handleNavigate = (page: string) => {
-  emit('navigate', page);
-  isMenuOpen.value = false;
 };
 </script>
 
